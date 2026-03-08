@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentOS – Pitch Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0f; color: #fff; overflow: hidden; }
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px; opacity: 0; pointer-events: none; transition: opacity 0.5s; text-align: center; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .nav { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; z-index: 100; background: rgba(255,255,255,0.07); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); border-radius: 50px; padding: 10px 24px; }
+  .nav button { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .nav button:hover { background: rgba(255,255,255,0.15); }
+  .dots { display: flex; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.3s; }
+  .dot.active { background: #6C63FF; width: 24px; border-radius: 4px; }
+  .counter { position: fixed; top: 28px; right: 36px; font-size: 13px; color: rgba(255,255,255,0.35); z-index: 100; }
+  .logo-mark { position: fixed; top: 28px; left: 36px; font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: #fff; z-index: 100; }
+  .logo-mark span { color: #6C63FF; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #6C63FF; margin-bottom: 16px; }
+  h1 { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1.1; }
+  h2 { font-size: 40px; font-weight: 700; letter-spacing: -1px; line-height: 1.2; }
+  h3 { font-size: 22px; font-weight: 600; }
+  .subtitle { font-size: 20px; color: rgba(255,255,255,0.55); margin-top: 16px; max-width: 640px; line-height: 1.6; }
+  .big-stat { font-size: 72px; font-weight: 800; letter-spacing: -3px; }
+  .grad { background: linear-gradient(135deg, #6C63FF, #48CAE4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .bg-grid { background-image: linear-gradient(rgba(108,99,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(108,99,255,0.06) 1px, transparent 1px); background-size: 48px 48px; }
+  .bg-glow::before { content: ''; position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.18) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .cards { display: grid; gap: 20px; width: 100%; max-width: 960px; }
+  .cards.cols-3 { grid-template-columns: repeat(3,1fr); }
+  .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; padding: 28px; text-align: left; }
+  .card .icon { font-size: 28px; margin-bottom: 14px; }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card p { font-size: 13.5px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .pain-list { list-style: none; text-align: left; max-width: 680px; width: 100%; }
+  .pain-list li { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 17px; color: rgba(255,255,255,0.75); }
+  .pain-list li .num { font-size: 13px; font-weight: 700; color: #6C63FF; background: rgba(108,99,255,0.12); border-radius: 6px; padding: 3px 8px; min-width: 28px; text-align: center; margin-top: 1px; }
+  .module { display: flex; align-items: flex-start; gap: 24px; text-align: left; max-width: 760px; width: 100%; margin: 10px 0; }
+  .module-icon { font-size: 28px; width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .module-icon.purple { background: rgba(108,99,255,0.18); }
+  .module-icon.blue { background: rgba(72,202,228,0.15); }
+  .module-icon.green { background: rgba(52,211,153,0.15); }
+  .module h3 { font-size: 17px; margin-bottom: 5px; }
+  .module p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .module .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.6); }
+  .stats-row { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-label { font-size: 14px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+  .timeline { display: flex; max-width: 860px; width: 100%; position: relative; }
+  .timeline::before { content: ''; position: absolute; top: 28px; left: 40px; right: 40px; height: 2px; background: rgba(255,255,255,0.08); }
+  .t-item { flex: 1; text-align: center; position: relative; padding-top: 52px; }
+  .t-dot { width: 14px; height: 14px; border-radius: 50%; background: #6C63FF; position: absolute; top: 21px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 0 4px rgba(108,99,255,0.2); }
+  .t-phase { font-size: 11px; font-weight: 700; color: #6C63FF; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+  .t-label { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+  .traction-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; max-width: 860px; width: 100%; }
+  .traction-card { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25); border-radius: 16px; padding: 22px; text-align: center; }
+  .traction-card .val { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+  .traction-card .lbl { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+  .cta-btn { margin-top: 32px; padding: 16px 40px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #6C63FF, #48CAE4); border: none; border-radius: 50px; color: #fff; cursor: pointer; box-shadow: 0 8px 32px rgba(108,99,255,0.4); }
+  .divider { width: 48px; height: 3px; background: linear-gradient(90deg, #6C63FF, #48CAE4); border-radius: 2px; margin: 18px auto; }
+  .comp-table { width: 100%; max-width: 860px; border-collapse: collapse; font-size: 14px; }
+  .comp-table th { padding: 12px 16px; color: rgba(255,255,255,0.4); font-weight: 600; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .comp-table td { padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); }
+  .comp-table tr.hl td { background: rgba(108,99,255,0.1); color: #fff; font-weight: 600; }
+  .check { color: #34D399; } .cross { color: rgba(255,255,255,0.2); }
+  .biz-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 860px; width: 100%; }
+  .biz-card { border-radius: 20px; padding: 28px; text-align: left; }
+  .biz-card.starter { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
+  .biz-card.growth { background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(72,202,228,0.1)); border: 1px solid rgba(108,99,255,0.4); }
+  .biz-card.enterprise { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
+  .biz-card .plan { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+  .biz-card .price { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; }
+  .biz-card .per { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .biz-card .desc { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 10px; line-height: 1.5; }
+  .team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; max-width: 760px; width: 100%; }
+  .team-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; text-align: center; }
+  .avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6C63FF, #48CAE4); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; margin: 0 auto 12px; }
+  .team-card .name { font-size: 16px; font-weight: 700; }
+  .team-card .role { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+  .team-card .bio { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 8px; line-height: 1.5; }
+  .ask-box { background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(72,202,228,0.08)); border: 1px solid rgba(108,99,255,0.35); border-radius: 24px; padding: 40px 48px; max-width: 620px; width: 100%; }
+</style>
+</head>
+<body>
+<div class="logo-mark">Rent<span>OS</span></div>
+<div class="counter" id="counter">1 / 12</div>
+<div class="deck">
+
+  <div class="slide bg-grid bg-glow active" id="s1">
+    <div class="eyebrow">B2B SaaS · Laptop Rental Management</div>
+    <h1>The OS for <span class="grad">Laptop<br>Rental Businesses</span></h1>
+    <p class="subtitle">One platform to manage customers, subscriptions, devices, and payments — built exclusively for rental providers.</p>
+    <div style="margin-top:32px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <span class="tag" style="font-size:13px;padding:8px 16px;">Digital KYC & Credit Check</span>
+      <span class="tag" style="font-size:13px;padding:8px 16px;">Subscription Management</span>
+      <span class="tag" style="font-size:13px;padding:8px 16px;">Device Intelligence</span>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="eyebrow">The Problem</div>
+    <h2>Running a laptop rental business<br>is <span class="grad">surprisingly painful</span></h2>
+    <div class="divider"></div>
+    <ul class="pain-list">
+      <li><span class="num">01</span>Onboarding customers takes days — paper KYC, manual credit checks, zero standardisation</li>
+      <li><span class="num">02</span>Invoices are created manually; collections chased over WhatsApp and phone calls</li>
+      <li><span class="num">03</span>No single view of deployed devices — health, location, or who has what</li>
+      <li><span class="num">04</span>Zero ability to remotely lock or wipe a device when a customer defaults or leaves</li>
+      <li><span class="num">05</span>Operations run on spreadsheets, WhatsApp, and generic tools not built for this</li>
+    </ul>
+  </div>
+
+  <div class="slide bg-glow" id="s3">
+    <div class="eyebrow">Market Opportunity</div>
+    <h2>A large and <span class="grad">fast-growing</span> market</h2>
+    <div class="divider"></div>
+    <div class="stats-row" style="margin-top:16px;">
+      <div class="stat-item"><div class="big-stat grad">$4.2B</div><div class="stat-label">Global Device Leasing Market (2024)</div></div>
+      <div class="stat-item"><div class="big-stat grad">18%</div><div class="stat-label">CAGR through 2030</div></div>
+      <div class="stat-item"><div class="big-stat grad">40K+</div><div class="stat-label">SMB Rental Providers in India</div></div>
+    </div>
+    <p class="subtitle" style="margin-top:28px;">Post-pandemic WFH boom and the shift to "device-as-a-service" is pushing SMB rental operators to scale rapidly — with no purpose-built tooling to support them.</p>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="eyebrow">Our Solution</div>
+    <h2>RentOS — <span class="grad">Three Pillars</span></h2>
+    <div class="divider"></div>
+    <div class="cards cols-3">
+      <div class="card"><div class="icon">🧑‍💼</div><h3>Customer Hub</h3><p>Digital onboarding, KYC verification, credit scoring, and a full 360° customer profile with history and risk flags.</p></div>
+      <div class="card"><div class="icon">🔄</div><h3>Subscription Engine</h3><p>Automated recurring invoices, payment collection, smart dunning, and real-time cash flow dashboards.</p></div>
+      <div class="card"><div class="icon">💻</div><h3>Device Intelligence</h3><p>Asset tracking, health monitoring, remote lock/wipe, and one-click remote support sessions.</p></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="eyebrow">Pillar 1 · Customer Management</div>
+    <h2>Onboard in <span class="grad">minutes,</span> not days</h2>
+    <div class="divider"></div>
+    <div class="module"><div class="module-icon purple">🪪</div><div><h3>Digital KYC & Identity Verification</h3><p>Guided in-app flow with Aadhaar/PAN-linked verification, video KYC, and document OCR. Auto-flags mismatches and incomplete submissions.</p><div class="tags"><span class="tag">Aadhaar API</span><span class="tag">DigiLocker</span><span class="tag">Video KYC</span><span class="tag">OCR</span></div></div></div>
+    <div class="module"><div class="module-icon blue">📊</div><div><h3>Automated Credit Assessment</h3><p>Instant bureau pull (CIBIL/Experian), configurable risk thresholds, and a rental-specific scoring model built on your own payment history data.</p><div class="tags"><span class="tag">Bureau Integration</span><span class="tag">Custom Score Model</span><span class="tag">Risk Tiers</span></div></div></div>
+    <div class="module"><div class="module-icon green">📋</div><div><h3>Digital Contracts & 360° CRM</h3><p>E-sign rental agreements, auto-populate customer data, log every interaction, and get alerts on renewals, expiries, and overdue actions.</p><div class="tags"><span class="tag">eSign</span><span class="tag">CRM Timeline</span><span class="tag">Smart Alerts</span></div></div></div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="eyebrow">Pillar 2 · Subscription Management</div>
+    <h2>Collections on <span class="grad">auto-pilot</span></h2>
+    <div class="divider"></div>
+    <div class="module"><div class="module-icon purple">🧾</div><div><h3>Recurring Invoices & Billing Automation</h3><p>Set billing cycles once — RentOS generates, sends, and tracks invoices automatically. Handles proration, mid-cycle changes, and GST/tax calculations.</p><div class="tags"><span class="tag">Auto-invoicing</span><span class="tag">GST Ready</span><span class="tag">Proration</span></div></div></div>
+    <div class="module"><div class="module-icon blue">💳</div><div><h3>Multi-mode Payment Collection</h3><p>UPI AutoPay, NACH mandates, payment links, and card billing. Retry logic, dunning sequences, and automatic customer notifications reduce default rates.</p><div class="tags"><span class="tag">UPI AutoPay</span><span class="tag">NACH</span><span class="tag">Smart Dunning</span><span class="tag">Razorpay / Cashfree</span></div></div></div>
+    <div class="module"><div class="module-icon green">📈</div><div><h3>Revenue Dashboard & Analytics</h3><p>Live MRR, ARR, collection rate, aging buckets, churn forecasting, and cohort analysis built in. Export for your accountant in one click.</p><div class="tags"><span class="tag">MRR / ARR</span><span class="tag">Aging Reports</span><span class="tag">Churn Signals</span></div></div></div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="eyebrow">Pillar 3 · Device Management</div>
+    <h2>Total control over <span class="grad">every device</span></h2>
+    <div class="divider"></div>
+    <div class="module"><div class="module-icon purple">🗺️</div><div><h3>Asset Tracking & Inventory</h3><p>Every laptop tagged at intake — serial number, specs, photos. Real-time view of which device is with which customer, since when, and its current health score.</p><div class="tags"><span class="tag">Asset Registry</span><span class="tag">Customer Mapping</span><span class="tag">Health Score</span></div></div></div>
+    <div class="module"><div class="module-icon blue">🔒</div><div><h3>Remote Lock, Wipe & Security</h3><p>Instantly lock or wipe a device the moment a customer defaults or their agreement lapses. Geofencing alerts for unusual location changes. Tamper notifications in real time.</p><div class="tags"><span class="tag">Remote Lock</span><span class="tag">Remote Wipe</span><span class="tag">Geofence Alerts</span><span class="tag">MDM Integration</span></div></div></div>
+    <div class="module"><div class="module-icon green">🖥️</div><div><h3>Remote Support & Monitoring</h3><p>One-click screen-share sessions for troubleshooting. Proactive monitoring for disk health, battery degradation, OS updates, and malware flags — before your customer even notices.</p><div class="tags"><span class="tag">Remote Desktop</span><span class="tag">SMART Monitoring</span><span class="tag">Proactive Alerts</span></div></div></div>
+  </div>
+
+  <div class="slide" id="s8">
+    <div class="eyebrow">Competitive Landscape</div>
+    <h2>Built <span class="grad">specifically</span> for rental, not adapted from it</h2>
+    <div class="divider"></div>
+    <table class="comp-table">
+      <thead><tr><th>Solution</th><th>Digital KYC</th><th>Recurring Billing</th><th>Device Lock/Wipe</th><th>Remote Support</th><th>Rental-Native</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>✦ RentOS</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Generic CRM (Zoho, Salesforce)</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+        <tr><td>MDM Only (JumpCloud, Hexnode)</td><td class="cross">–</td><td class="cross">–</td><td class="check">✓</td><td class="check">✓</td><td class="cross">–</td></tr>
+        <tr><td>Billing SaaS (Chargebee, Zoho Books)</td><td class="cross">–</td><td class="check">✓</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+        <tr><td>Spreadsheets + WhatsApp</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td><td class="cross">–</td></tr>
+      </tbody>
+    </table>
+    <p class="subtitle" style="margin-top:20px;font-size:14px;">Competitors address one piece. RentOS is the only end-to-end platform purpose-built for laptop rental operators.</p>
+  </div>
+
+  <div class="slide" id="s9">
+    <div class="eyebrow">Business Model</div>
+    <h2>Simple, <span class="grad">scalable</span> SaaS pricing</h2>
+    <div class="divider"></div>
+    <div class="biz-cards">
+      <div class="biz-card starter"><div class="plan">Starter</div><div class="price">₹4,999<span class="per">/mo</span></div><div class="desc">Up to 100 devices · Core CRM · Invoicing · Basic device tracking · Email support</div></div>
+      <div class="biz-card growth"><div class="plan" style="color:#a8a3ff;">Growth ★ Most Popular</div><div class="price grad">₹12,999<span class="per" style="-webkit-text-fill-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.4)">/mo</span></div><div class="desc">Up to 500 devices · KYC & Credit check · AutoPay · Remote lock/wipe · Remote support · Priority support</div></div>
+      <div class="biz-card enterprise"><div class="plan">Enterprise</div><div class="price">Custom</div><div class="desc">Unlimited devices · White-label · API access · Dedicated CSM · SLA guarantees · Custom integrations</div></div>
+    </div>
+    <p class="subtitle" style="font-size:13px;margin-top:18px;">+ Revenue share on payment collections (0.5–1%) · Target NRR: 120%+</p>
+  </div>
+
+  <div class="slide" id="s10">
+    <div class="eyebrow">Traction & Roadmap</div>
+    <h2>Early signals, <span class="grad">clear path</span> to scale</h2>
+    <div class="divider"></div>
+    <div class="traction-grid" style="margin-bottom:32px;">
+      <div class="traction-card"><div class="val grad">12</div><div class="lbl">Pilot Customers (LOIs signed)</div></div>
+      <div class="traction-card"><div class="val grad">1,800+</div><div class="lbl">Devices on Platform</div></div>
+      <div class="traction-card"><div class="val grad">₹4.2L</div><div class="lbl">MRR (3 months post-launch)</div></div>
+      <div class="traction-card"><div class="val grad">94%</div><div class="lbl">Customer Retention</div></div>
+    </div>
+    <div class="timeline">
+      <div class="t-item"><div class="t-dot"></div><div class="t-phase">Q1 2025</div><div class="t-label">MVP Launch<br>12 Pilot Customers</div></div>
+      <div class="t-item"><div class="t-dot" style="background:#48CAE4;"></div><div class="t-phase">Q2 2025</div><div class="t-label">KYC & AutoPay<br>Module Live</div></div>
+      <div class="t-item"><div class="t-dot"></div><div class="t-phase">Q3 2025</div><div class="t-label">MDM Integration<br>Remote Support</div></div>
+      <div class="t-item"><div class="t-dot" style="background:#34D399;"></div><div class="t-phase">Q4 2025</div><div class="t-label">100 Customers<br>Pan-India</div></div>
+      <div class="t-item"><div class="t-dot"></div><div class="t-phase">2026</div><div class="t-label">SEA Expansion<br>Enterprise Tier</div></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s11">
+    <div class="eyebrow">The Team</div>
+    <h2>Built by people who <span class="grad">know the pain</span></h2>
+    <div class="divider"></div>
+    <div class="team-grid">
+      <div class="team-card"><div class="avatar">AK</div><div class="name">Arjun Kapoor</div><div class="role">CEO & Co-founder</div><div class="bio">Former ops head at a 2,000-device rental firm. Experienced the problem firsthand for 5 years.</div></div>
+      <div class="team-card"><div class="avatar">PM</div><div class="name">Priya Mehta</div><div class="role">CTO & Co-founder</div><div class="bio">Ex-Razorpay engineer. Led payments infrastructure. 8 years in fintech and SaaS platforms.</div></div>
+      <div class="team-card"><div class="avatar">RS</div><div class="name">Rahul Sharma</div><div class="role">Head of Product</div><div class="bio">Ex-Zoho product manager. Built B2B SaaS used by 50K+ SMBs across India.</div></div>
+    </div>
+    <p class="subtitle" style="margin-top:20px;font-size:13px;">Backed by advisors from Juspay, GreytHR, and India's top IT asset leasing firms</p>
+  </div>
+
+  <div class="slide bg-glow" id="s12">
+    <div class="eyebrow">The Ask</div>
+    <h2>Raising <span class="grad">₹3 Crore</span> Seed Round</h2>
+    <div class="divider"></div>
+    <div class="ask-box">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;">
+        <div><div style="font-size:28px;font-weight:800;color:#6C63FF;">40%</div><div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">Product & Engineering</div></div>
+        <div><div style="font-size:28px;font-weight:800;color:#48CAE4;">35%</div><div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">Sales & GTM</div></div>
+        <div><div style="font-size:28px;font-weight:800;color:#34D399;">25%</div><div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">Ops & Infra</div></div>
+      </div>
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">
+        <strong style="color:#fff;">18-month milestones:</strong> 200+ paying customers · ₹25L MRR · 10,000+ managed devices · Series A ready
+      </div>
+    </div>
+    <button class="cta-btn">Schedule a Demo →</button>
+    <p style="margin-top:14px;font-size:13px;color:rgba(255,255,255,0.3);">hello@rentos.in · rentos.in</p>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button onclick="prev()">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <button onclick="next()">&#8594;</button>
+</div>
+
+<script>
+  const total = 12; let cur = 1;
+  const dots = document.getElementById('dots');
+  for (let i=1;i<=total;i++){const d=document.createElement('div');d.className='dot'+(i===1?' active':'');d.onclick=()=>go(i);dots.appendChild(d);}
+  function go(n){
+    document.getElementById('s'+cur).classList.remove('active');
+    dots.children[cur-1].classList.remove('active');
+    cur=Math.max(1,Math.min(total,n));
+    document.getElementById('s'+cur).classList.add('active');
+    dots.children[cur-1].classList.add('active');
+    document.getElementById('counter').textContent=cur+' / '+total;
+  }
+  function next(){go(cur+1);}function prev(){go(cur-1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')next();if(e.key==='ArrowLeft'||e.key==='ArrowUp')prev();});
+  let tx=0;
+  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});
+  document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(d<-50)next();if(d>50)prev();});
+</script>
+</body>
+</html>
